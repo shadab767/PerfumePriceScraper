@@ -8,6 +8,10 @@ class TelegramMessage(BaseModel):
     update_id: int
     message: Optional[dict]  # You can also model this in more detail if needed
 
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to my FastAPI app!"}
+
 @app.post("/webhook/telegram")
 async def receive_telegram_message(payload: TelegramMessage):
     if payload.message:
