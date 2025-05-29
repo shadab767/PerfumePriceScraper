@@ -38,6 +38,7 @@ async def receive_telegram_message(payload: TelegramMessage):
             perfume_name = text.split(":")[1].strip()
             found_products = []
             found_products.append(scrape_frag_flex(perfume_name))
+            # print(found_products)
             message = "<b>🛍️ Perfume Price List:</b>\n\n"
 
             for perfume in found_products:
@@ -60,7 +61,7 @@ async def receive_telegram_message(payload: TelegramMessage):
         # Here you can add logic like saving to DB, triggering another service, etc.
     return {"status": "ok"}
 
-async def scrape_frag_flex(perfume_name: str):
+def scrape_frag_flex(perfume_name: str):
     product_name = perfume_name.lower().strip()
     matched_product = None
     URL = "https://fragflex.com/search?q="+product_name.replace(" ","+")  # Replace with the actual URL
@@ -87,8 +88,8 @@ async def scrape_frag_flex(perfume_name: str):
         base_url + tag.get("href")
         for tag in soup.select("a.full-unstyled-link.product")
     ]
-
-    for item_name,item_price,link,perfume in zip(item_names,item_prices,links,perfumes_list):
+    # print(item_names)
+    for item_name,item_price,link in zip(item_names,item_prices,links):
         # Try to get sale price first
         sale = item_price.select_one("span.price-item--sale span.transcy-money")
         if sale:
@@ -97,7 +98,7 @@ async def scrape_frag_flex(perfume_name: str):
             # Fall back to regular price if no sale price
             regular = item_price.select_one("span.price-item--regular span.transcy-money")
             price = regular.get_text(strip=True) if regular else "Sold out"
-
+        # print(item_name.get_text(strip=True),price,link)    
         perfumes_list.append({
             "name":item_name.get_text(strip=True),
             "price" : price,
@@ -105,8 +106,8 @@ async def scrape_frag_flex(perfume_name: str):
         })
 
     for perfume in perfumes_list:
-        print(perfume)
-        if perfume.name.lower().strip().includes(product_name.lower().strip()):
+        # print(perfume)
+        if product_name.lower().strip() in perfume["name"].lower().strip() :
             matched_product = perfume
 
     return matched_product
