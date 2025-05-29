@@ -2,6 +2,5 @@ fastapi[standard]
 uvicorn[standard]
 typing
 pydantic
-json
 requests
 beautifulsoup4
